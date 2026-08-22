@@ -32,6 +32,7 @@ const App = {
     UI.popularSelectCampus();
     UI.popularSelectTipo();
     UI.popularSelectResponsavel(document.getElementById('responsavel'));
+    Registro.popularSelectPitOverride();
     UI.renderConfig();
 
     Historico.popularFiltroTipo();
@@ -44,8 +45,9 @@ const App = {
     const campusPadrao = Storage.getCampusPadrao();
     if (campusPadrao) document.getElementById('campus').value = campusPadrao;
 
-    // Puxa config da nuvem (silencioso; avisa só se houver conflito real)
+    // Puxa config e registros da nuvem (silencioso; avisa só se houver conflito real)
     Sync.sincronizarConfig({ silent: true });
+    Sync.baixarRegistros({ silent: true });
   }
 };
 
