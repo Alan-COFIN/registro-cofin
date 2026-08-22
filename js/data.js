@@ -80,11 +80,36 @@ const DEFAULT_CONFIG = [
   }
 ];
 
-// Mapa "tipo interno" -> "texto oficial PIT/SUAP" (usado no relatório)
+// Lista oficial das entregas do seu PIT/SUAP (RIFAC > PROAD > DIRCF > COFIN).
+// Usada tanto como opção de override no registro quanto como agrupador do Relatório.
+const PIT_OFICIAL = [
+  'Atendimento aos campi e setores quanto a assuntos relacionados a orientações técnicas',
+  'Atendimento aos fornecedores quanto aos pagamentos',
+  'Atendimento às determinações e demandas de órgãos externos',
+  'Atividades referentes à Liquidação de Despesas',
+  'Atividades referentes à liquidação e pagamento de despesas da folha de pagamento de pessoal',
+  'Atividades referentes ao Pagamento de Despesas',
+  'Auxílio à Diretoria de Contabilidade e Finanças e Pró-Reitoria de Administração referente aos assuntos diversos relacionados à contabilidade, finanças, orçamento',
+  'Controle, acompanhamento recursos específicos, TED, emenda por liquidação/pagamento',
+  'Cumprimento de obrigações tributárias referentes à SEFIP/GFIP, PIS/PASEP/NIT, FGTS, DARF/GPS, DIRF, ISS, EFD-Reinf e E-Social, DCTFweb',
+  'Elaboração e revisão de fluxos de processos e manuais',
+  'Envio de IRRF aos fornecedores e colaboradores externos',
+  'Envio de demandas (liquidação e pagamento) para os campi',
+  'Gestão de Recursos Financeiros',
+  'Participação em atividades',
+  "Regularização de pagamento (ob's canceladas)"
+];
+
+// Mapa "tipo interno/genérico" -> entrega oficial PADRÃO (pode ser trocada
+// registro a registro através do campo "Tipo PIT/SUAP" na tela de Registro).
 const PIT_MAP = {
-  'Liquidacao (Reitoria)': 'Atividades referentes a Liquidacao de Despesas',
+  'Liquidacao (Reitoria)': 'Atividades referentes à Liquidação de Despesas',
   'Pagamento (Reitoria)': 'Atividades referentes ao Pagamento de Despesas',
-  'Autorização de Pagamento (Campus)': 'Envio de demandas (liquidacao e pagamento) para os campi',
-  'Conferência do Retorno (Campus)': 'Envio de demandas (liquidacao e pagamento) para os campi',
-  'Triagem e Distribuição de Processos': 'Auxilio a Diretoria de Contabilidade e Financas e Pro-Reitoria de Administracao'
+  'Autorização de Pagamento (Campus)': 'Envio de demandas (liquidação e pagamento) para os campi',
+  'Conferência do Retorno (Campus)': 'Envio de demandas (liquidação e pagamento) para os campi',
+  'Triagem e Distribuição de Processos': 'Auxílio à Diretoria de Contabilidade e Finanças e Pró-Reitoria de Administração referente aos assuntos diversos relacionados à contabilidade, finanças, orçamento'
 };
+
+// Você é sempre o supervisor das atividades registradas, independente de
+// quem executou (campo "responsavel" no registro).
+const SUPERVISOR_PADRAO = 'alan';
