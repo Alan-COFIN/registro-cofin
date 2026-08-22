@@ -28,6 +28,7 @@ function doPost(e) {
   }
 
   if (body.action === 'save_registro') return salvarRegistro(body.registro);
+  if (body.action === 'load_registros') return carregarRegistros();
   if (body.action === 'save_config') return salvarConfig(body.config, body.updated_at);
   if (body.action === 'load_config') return carregarConfig();
 
@@ -41,16 +42,28 @@ function getSheet(nome) {
   return sh;
 }
 
+const COLUNAS_REGISTRO = ['id', 'data', 'sei', 'tipo', 'campus', 'responsavel', 'pitOficial', 'supervisor', 'atividades', 'detalhes', 'criadoEm'];
+
 function salvarRegistro(reg) {
   const sh = getSheet(SHEET_REGISTROS);
   if (sh.getLastRow() === 0) {
-    sh.appendRow(['id', 'data', 'sei', 'tipo', 'campus', 'responsavel', 'atividades', 'detalhes', 'criadoEm']);
+    sh.appendRow(COLUNAS_REGISTRO);
   }
-  sh.appendRow([
-    reg.id, reg.data, reg.sei, reg.tipo, reg.campus,
-    reg.responsavel, reg.atividades, reg.detalhes, reg.criadoEm
-  ]);
+  sh.appendRow(COLUNAS_REGISTRO.map(c => reg[c] !== undefined ? reg[c] : ''));
   return resposta({ status: 'ok' });
+}
+
+function carregarRegistros() {
+  const sh = getSheet(SHEET_REGISTROS);
+  const linhas = sh.getDataRange().getValues();
+  if (linhas.length < 2) return resposta({ status: 'ok', registros: [] });
+  const cabecalho = linhas[0];
+  const registros = linhas.slice(1).map(linha => {
+    const obj = {};
+    cabecalho.forEach((col, i) => { obj[col] = linha[i]; });
+    return obj;
+  });
+  return resposta({ status: 'ok', registros });
 }
 
 function salvarConfig(configJson, updatedAt) {
