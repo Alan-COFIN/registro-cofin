@@ -41,7 +41,18 @@ apps-script.gs        código para colar no Google Apps Script
 - A configuração (tipos/atividades) é salva na nuvem a cada alteração.
 - Ao abrir a aba Configurações, o app tenta puxar a versão mais recente automaticamente.
 - Se você editou localmente e a nuvem tiver uma versão mais nova, o app avisa em vez de sobrescrever — use os botões "Puxar da nuvem" ou "Forçar puxar" para decidir manualmente.
-- Os registros de histórico (não a config) são enviados individualmente a cada "Salvar registro".
+- Os registros de histórico são enviados individualmente a cada "Salvar registro" **e também baixados** automaticamente ao abrir o app (e sob demanda pelo botão "Sincronizar registros" na aba Histórico) — assim o mesmo histórico aparece em qualquer navegador.
+
+## Tipo PIT/SUAP e supervisão
+
+- Cada "Tipo de demanda" tem uma entrega oficial do PIT/SUAP como padrão (ver `PIT_MAP` em `js/data.js`).
+- Na tela de registro, o campo "Tipo PIT/SUAP" permite trocar essa entrega pontualmente, sem mudar o padrão.
+- Todo registro é gravado com `supervisor: alan` fixo — o campo "Executado por" indica apenas quem realizou a atividade.
+- O Relatório lista **cada atividade individualmente**, agrupada pela entrega oficial do PIT/SUAP, com data, SEI e quem executou.
+
+## Lançamento em lote
+
+Na aba Novo Registro, a caixa "Lançamento em lote" cria um registro para cada número de processo SEI colado (um por linha), reaproveitando o tipo, campus, atividades e responsável já preenchidos no formulário acima.
 
 ## Segurança
 
