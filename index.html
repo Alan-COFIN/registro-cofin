@@ -1,59 +1,168 @@
-# Registro COFIN
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro COFIN</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
 
-App de registro de atividades PGD, feito do zero em HTML/JS puro (sem framework), organizado em módulos.
+<header>
+  <h1>Registro COFIN</h1>
+  <span id="sync-status" class="sync-status sync-ok">Iniciando...</span>
+</header>
 
-## Estrutura
+<nav class="tabs">
+  <button class="tab active" onclick="UI.showTab('registro', this)">Novo registro</button>
+  <button class="tab" onclick="UI.showTab('historico', this)">Histórico</button>
+  <button class="tab" onclick="UI.showTab('config', this)">Configurações</button>
+  <button class="tab" onclick="UI.showTab('pit', this)">Planejar PIT</button>
+  <button class="tab" onclick="UI.showTab('relatorio', this)">Relatório</button>
+</nav>
 
-```
-index.html          shell + abas
-css/style.css        estilo
-js/data.js           tipos de demanda, atividades, PIT/SUAP, responsáveis (semente inicial)
-js/storage.js        acesso ao localStorage
-js/sei.js            sugestão automática de tipo pelo histórico do processo SEI
-js/sync.js           sincronização com Google Sheets (token de segurança + aviso de conflito)
-js/ui.js             abas, toast, aba Configurações
-js/registro.js        aba Novo Registro (inclui edição inline de atividade)
-js/historico.js       aba Histórico + resumo por responsável
-js/relatorio.js       aba Relatório (RIT) + exportar .txt
-js/pit.js             aba Planejar PIT
-js/main.js            inicialização
-apps-script.gs        código para colar no Google Apps Script
-```
+<main>
 
-## Como colocar no ar
+  <!-- ============ ABA: NOVO REGISTRO ============ -->
+  <section id="registro" class="section active">
+    <div class="card">
+      <div class="row">
+        <div class="field">
+          <label>Processo SEI</label>
+          <input type="text" id="sei" placeholder="Ex: 23244.004463/2024-69" oninput="Registro.onSeiInput()">
+          <div id="sei-sugestao"></div>
+        </div>
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="data">
+        </div>
+      </div>
 
-1. **Planilha + Apps Script**
-   - Crie uma planilha nova no Google Sheets.
-   - Extensões > Apps Script > cole o conteúdo de `apps-script.gs`.
-   - Troque `TOKEN` por um valor secreto seu.
-   - Implantar > Nova implantação > App da Web > Executar como "Eu", acesso "Qualquer pessoa".
-   - Copie a URL gerada.
+      <div class="row">
+        <div class="field">
+          <label>Campus / Setor</label>
+          <select id="campus"></select>
+        </div>
+        <div class="field">
+          <label>Executado por <span class="sup-fixo">(supervisão: Alan)</span></label>
+          <select id="responsavel"></select>
+        </div>
+      </div>
 
-2. **Front-end**
-   - Abra `js/sync.js` e preencha `SHEETS_URL` (a URL copiada) e `SYNC_TOKEN` (o mesmo token do passo 1).
+      <div class="field">
+        <label>Tipo de demanda</label>
+        <select id="tipo" onchange="Registro.onTipoChange()"></select>
+      </div>
 
-3. **Publicar**
-   - Suba a pasta para um repositório no GitHub.
-   - Settings > Pages > publique a branch principal.
+      <div class="field">
+        <label>Tipo PIT/SUAP <span class="opcional">(opcional — troque se necessário para o relatório)</span></label>
+        <select id="pit-override"><option value="">— usar padrão do tipo —</option></select>
+      </div>
 
-## Sincronização entre navegadores
+      <div class="field" id="ativs-field" style="display:none">
+        <label>Atividades realizadas</label>
+        <div class="atividades-box" id="ativs-list"></div>
+      </div>
 
-- A configuração (tipos/atividades) é salva na nuvem a cada alteração.
-- Ao abrir a aba Configurações, o app tenta puxar a versão mais recente automaticamente.
-- Se você editou localmente e a nuvem tiver uma versão mais nova, o app avisa em vez de sobrescrever — use os botões "Puxar da nuvem" ou "Forçar puxar" para decidir manualmente.
-- Os registros de histórico são enviados individualmente a cada "Salvar registro" **e também baixados** automaticamente ao abrir o app (e sob demanda pelo botão "Sincronizar registros" na aba Histórico) — assim o mesmo histórico aparece em qualquer navegador.
+      <div class="field">
+        <label>Detalhes (opcional)</label>
+        <textarea id="detalhes" placeholder="Ex: Despacho COFIN SEI n. 1304283, NP163..."></textarea>
+      </div>
 
-## Tipo PIT/SUAP e supervisão
+      <button class="btn-pri" onclick="Registro.salvar()">Salvar registro</button>
+    </div>
 
-- Cada "Tipo de demanda" tem uma entrega oficial do PIT/SUAP como padrão (ver `PIT_MAP` em `js/data.js`).
-- Na tela de registro, o campo "Tipo PIT/SUAP" permite trocar essa entrega pontualmente, sem mudar o padrão.
-- Todo registro é gravado com `supervisor: alan` fixo — o campo "Executado por" indica apenas quem realizou a atividade.
-- O Relatório lista **cada atividade individualmente**, agrupada pela entrega oficial do PIT/SUAP, com data, SEI e quem executou.
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <strong>Lançamento em lote</strong>
+        <span class="opcional">usa o mesmo tipo/campus/atividades/responsável definidos acima</span>
+      </div>
+      <div class="field">
+        <label>Processos SEI (um por linha)</label>
+        <textarea id="lote-seis" placeholder="23244.001111/2026-10&#10;23244.002222/2026-33&#10;23244.003333/2026-54"></textarea>
+      </div>
+      <button class="btn-sec" onclick="Registro.salvarLote()">Salvar todos em lote</button>
+    </div>
+  </section>
 
-## Lançamento em lote
+  <!-- ============ ABA: HISTÓRICO ============ -->
+  <section id="historico" class="section">
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>De</label><input type="date" id="f-de" onchange="Historico.render()"></div>
+        <div class="field"><label>Até</label><input type="date" id="f-ate" onchange="Historico.render()"></div>
+        <div class="field"><label>Tipo</label><select id="f-tipo" onchange="Historico.render()"></select></div>
+        <div class="field"><label>Responsável</label><select id="f-responsavel" onchange="Historico.render()"></select></div>
+      </div>
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div id="resumo-responsavel"></div>
+        <button class="btn-sec" onclick="Sync.baixarRegistros({force:true})">Sincronizar registros</button>
+      </div>
+    </div>
+    <div id="lista-registros"></div>
+  </section>
 
-Na aba Novo Registro, a caixa "Lançamento em lote" cria um registro para cada número de processo SEI colado (um por linha), reaproveitando o tipo, campus, atividades e responsável já preenchidos no formulário acima.
+  <!-- ============ ABA: CONFIGURAÇÕES ============ -->
+  <section id="config" class="section">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <strong>Tipos de demanda e atividades</strong>
+        <div style="display:flex;gap:8px">
+          <button class="btn-sec" onclick="UI.addTipo()">+ novo tipo</button>
+          <button class="btn-sec" onclick="Sync.sincronizarConfig({force:false})">Puxar da nuvem</button>
+          <button class="btn-sec" onclick="Sync.sincronizarConfig({force:true})">Forçar puxar</button>
+        </div>
+      </div>
+    </div>
+    <div id="config-lista"></div>
+  </section>
 
-## Segurança
+  <!-- ============ ABA: PLANEJAR PIT ============ -->
+  <section id="pit" class="section">
+    <div class="card">
+      <div class="field">
+        <label>Horas totais disponíveis no período</label>
+        <input type="number" id="pit-total" min="1" oninput="Pit.calcular()">
+      </div>
+      <div id="pit-resumo" class="card" style="background:#f9f9f9"></div>
+      <div id="pit-alerta" style="display:none;padding:10px;border-radius:8px;background:#fff3e0;color:#e65100;margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <div id="pit-lista"></div>
+      <button class="btn-sec" onclick="Pit.adicionar()">+ entrega</button>
+    </div>
+  </section>
 
-A URL do Apps Script fica visível no código-fonte (é uma página pública). O `TOKEN` impede que alguém que veja essa URL consiga ler ou gravar dados sem o valor secreto correto. Não compartilhe o token.
+  <!-- ============ ABA: RELATÓRIO ============ -->
+  <section id="relatorio" class="section">
+    <div class="card">
+      <div class="row">
+        <div class="field"><label>Mês</label><input type="month" id="rel-mes"></div>
+      </div>
+      <button class="btn-pri" onclick="Relatorio.gerar()">Gerar relatório (RIT)</button>
+    </div>
+    <div id="rel-cards" class="card" style="display:none">
+      <pre id="rel-texto"></pre>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn-sec" onclick="Relatorio.copiar()">Copiar</button>
+        <button class="btn-sec" onclick="Relatorio.baixarTxt()">Baixar .txt</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/sei.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/registro.js"></script>
+<script src="js/historico.js"></script>
+<script src="js/relatorio.js"></script>
+<script src="js/pit.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
