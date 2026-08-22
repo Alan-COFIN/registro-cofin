@@ -44,7 +44,7 @@
           <select id="campus"></select>
         </div>
         <div class="field">
-          <label>Responsável pela atividade</label>
+          <label>Executado por <span class="sup-fixo">(supervisão: Alan)</span></label>
           <select id="responsavel"></select>
         </div>
       </div>
@@ -52,6 +52,11 @@
       <div class="field">
         <label>Tipo de demanda</label>
         <select id="tipo" onchange="Registro.onTipoChange()"></select>
+      </div>
+
+      <div class="field">
+        <label>Tipo PIT/SUAP <span class="opcional">(opcional — troque se necessário para o relatório)</span></label>
+        <select id="pit-override"><option value="">— usar padrão do tipo —</option></select>
       </div>
 
       <div class="field" id="ativs-field" style="display:none">
@@ -66,6 +71,18 @@
 
       <button class="btn-pri" onclick="Registro.salvar()">Salvar registro</button>
     </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <strong>Lançamento em lote</strong>
+        <span class="opcional">usa o mesmo tipo/campus/atividades/responsável definidos acima</span>
+      </div>
+      <div class="field">
+        <label>Processos SEI (um por linha)</label>
+        <textarea id="lote-seis" placeholder="23244.001111/2026-10&#10;23244.002222/2026-33&#10;23244.003333/2026-54"></textarea>
+      </div>
+      <button class="btn-sec" onclick="Registro.salvarLote()">Salvar todos em lote</button>
+    </div>
   </section>
 
   <!-- ============ ABA: HISTÓRICO ============ -->
@@ -77,7 +94,10 @@
         <div class="field"><label>Tipo</label><select id="f-tipo" onchange="Historico.render()"></select></div>
         <div class="field"><label>Responsável</label><select id="f-responsavel" onchange="Historico.render()"></select></div>
       </div>
-      <div id="resumo-responsavel"></div>
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div id="resumo-responsavel"></div>
+        <button class="btn-sec" onclick="Sync.baixarRegistros({force:true})">Sincronizar registros</button>
+      </div>
     </div>
     <div id="lista-registros"></div>
   </section>
