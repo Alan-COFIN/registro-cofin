@@ -70,6 +70,10 @@ textarea{min-height:60px;resize:vertical}
 .empty{color:var(--texto-suave);font-size:13px}
 
 .chip{display:inline-block;background:#eef3f1;border-radius:20px;padding:4px 12px;font-size:12px;margin:2px 4px 2px 0}
+.sup-fixo,.opcional{font-weight:400;text-transform:none;letter-spacing:0;color:var(--texto-suave);font-size:11px}
+.rel-entrega{margin-bottom:14px}
+.rel-entrega h4{margin:0 0 6px;font-size:13px;color:var(--azul)}
+.rel-linha{font-size:12px;margin-bottom:4px;padding-left:8px;border-left:2px solid var(--borda)}
 
 .cfg-tipo{border:1px solid var(--borda);border-radius:8px;padding:12px;margin-bottom:12px;background:#fff}
 .cfg-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
