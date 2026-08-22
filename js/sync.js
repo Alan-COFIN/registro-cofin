@@ -11,7 +11,7 @@
       endpoint e ler ou sobrescrever seus dados.
    ============================================================ */
 
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx3fHkihYOQD0wI5I2yEBueg_UYEvyoWXhArn--8dY2g5amdhKWnkF2S16K78A9-z_Ruw/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwVqHOUsxdVUfzYCm4M4Iaq0_ZDRqfEDG0v1G2fJLcopdmq2tqpIdZK_5sDOAo7nucR1g/exec';
 const SYNC_TOKEN = '@System10#*';
 
 const Sync = {
@@ -32,6 +32,37 @@ const Sync = {
       body: JSON.stringify(Object.assign({ token: SYNC_TOKEN }, body))
     });
     return resp.json();
+  },
+
+  // Busca todos os registros da nuvem e mescla com os locais (por id),
+  // para que o histórico apareça igual em qualquer navegador.
+  async baixarRegistros({ force = false, silent = false } = {}) {
+    if (!this._configurado()) {
+      if (!silent) showToast('Configure SHEETS_URL antes de sincronizar.');
+      return;
+    }
+    if (!silent) this.setStatus('ing', 'Baixando registros...');
+    try {
+      const d = await this._post({ action: 'load_registros' });
+      if (d.status === 'ok' && Array.isArray(d.registros)) {
+        const locais = App.state.registros;
+        const idsLocais = new Set(locais.map(r => r.id));
+        let novos = 0;
+        d.registros.forEach(remoto => {
+          if (!idsLocais.has(remoto.id)) {
+            remoto.synced = true;
+            locais.push(remoto);
+            novos++;
+          }
+        });
+        locais.sort((a, b) => (b.data || '').localeCompare(a.data || ''));
+        Storage.setRegistros(locais);
+        if (novos > 0 || force) Historico.render();
+        this.setStatus('ok', novos ? `${novos} registro(s) novos` : 'Registros em dia');
+      }
+    } catch (e) {
+      this.setStatus('err', 'Sem conexão com a nuvem');
+    }
   },
 
   // Envia um registro individual (histórico) para a planilha
