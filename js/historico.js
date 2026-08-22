@@ -33,7 +33,8 @@ const Historico = {
         <div class="reg-body">
           <div><strong>SEI:</strong> ${r.sei || '—'}</div>
           <div><strong>Campus:</strong> ${r.campus || '—'}</div>
-          <div><strong>Responsável:</strong> ${nomeResp}</div>
+          <div><strong>Entrega PIT/SUAP:</strong> ${r.pitOficial || '—'}</div>
+          <div><strong>Executado por:</strong> ${nomeResp} <span class="opcional">(supervisão: Alan)</span></div>
           ${r.atividades ? `<div><strong>Atividades:</strong> ${r.atividades}</div>` : ''}
           ${r.detalhes ? `<div><strong>Detalhes:</strong> ${r.detalhes}</div>` : ''}
         </div>
