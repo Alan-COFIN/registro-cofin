@@ -15,7 +15,7 @@
    5) Cole o MESMO token em SYNC_TOKEN no js/sync.js.
    ============================================================ */
 
-const TOKEN = 'COLE_AQUI_O_MESMO_TOKEN_DO_sync.js';
+const TOKEN = '@System10#*';
 const SHEET_REGISTROS = 'Registros';
 const SHEET_CONFIG = 'Config';
 
